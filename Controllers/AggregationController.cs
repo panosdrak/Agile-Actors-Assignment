@@ -1,5 +1,6 @@
 using Agile_Actors_Assignment.Interfaces;
 using Agile_Actors_Assignment.Models;
+using Agile_Actors_Assignment.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -9,13 +10,13 @@ namespace Agile_Actors_Assignment.Controllers
     [Route("[controller]")]
     public class AggregationController : ControllerBase
     {
-        private readonly IAggregationService _aggregationService;
+        private readonly AggregationService _aggregationService;
         private readonly ILogger<AggregationController> _logger;
         private readonly IApiStatistics _apiStatistics;
         private readonly IOptionsMonitor<ExternalApiOptions> _externalApiOptionsMonitor;
 
         public AggregationController(
-            IAggregationService aggregationService,
+            AggregationService aggregationService,
             ILogger<AggregationController> logger,
             IApiStatistics apiStatistics,
             IOptionsMonitor<ExternalApiOptions> optionsMonitor)

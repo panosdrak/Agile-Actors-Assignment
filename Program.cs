@@ -60,7 +60,7 @@ builder.Services.AddHttpClient<NewsApiClient>((sp, client) =>
 });
 
 builder.Services.AddSingleton<IApiStatistics, ApiStatistics>();
-builder.Services.AddScoped<IAggregationService, AggregationService>();
+builder.Services.AddScoped<AggregationService>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

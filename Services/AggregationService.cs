@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agile_Actors_Assignment.Services
 {
-    public class AggregationService : IAggregationService
+    public class AggregationService
     {
         private readonly PlaceToCoordsClient _placeToCoordsClient;
         private readonly WeatherApiClient _weatherApiClient;
