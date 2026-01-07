@@ -26,10 +26,11 @@ namespace Agile_Actors_Assignment.Services
         {
             if (string.IsNullOrWhiteSpace(locationName))
             {
-                return BasicDataResponse<AggregatedDataResult>.Fail("Location parameter is required.", "INVALID_LOCATION");
+                return BasicDataResponse<AggregatedDataResult>.Fail("Location parameter is required.", "500");
             }
-
+             
             _logger.LogInformation("> Starting aggregation for location: {Location}", locationName);
+
 
          
 
