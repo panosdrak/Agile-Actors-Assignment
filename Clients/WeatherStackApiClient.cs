@@ -7,9 +7,10 @@ using System.Diagnostics;
 
 namespace Agile_Actors_Assignment.Services
 {
-    public class WeatherStackApiClient
+    public class WeatherStackApiClient : IExternalApiClient
     {
-        private readonly string externalApiOptionsName = "WeatherStack API";
+        public string externalApiOptionsName => "WeatherStack API";
+
 
         private readonly HttpClient _client;
         private readonly IApiStatistics _apiStatistics;
@@ -24,10 +25,16 @@ namespace Agile_Actors_Assignment.Services
             _logger = logger;
         }
 
-        public async Task<BasicDataResponse<WeatherStackApiResponse>> GetWeatherAsync(string location)
+        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string location, CancellationToken ct)
         {
             var sw = Stopwatch.StartNew();
             HttpResponseMessage response = null;
+            
+            ExternalApiWrapperDto wrapperDto = new ExternalApiWrapperDto()
+            {
+                Source = externalApiOptionsName,
+            };
+
 
             try
             {
@@ -42,7 +49,7 @@ namespace Agile_Actors_Assignment.Services
                 {
                     _logger.LogWarning($"> Weather Stack API returned status code: {response.StatusCode} for location: {location}");
 
-                    return BasicDataResponse<WeatherStackApiResponse>.Fail(
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail(
                         $"Weather Stack API returned error status: {response.StatusCode}",
                         response.StatusCode.ToString());
                 }
@@ -52,7 +59,7 @@ namespace Agile_Actors_Assignment.Services
                 if (string.IsNullOrWhiteSpace(weatherDataString))
                 {
                     _logger.LogWarning($"> Weather Stack API returned null response for location: {location}");
-                    return BasicDataResponse<WeatherStackApiResponse>.Fail("Weather Stack API returned empty response.", "EMPTY_RESPONSE");
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail("Weather Stack API returned empty response.", "EMPTY_RESPONSE");
                 }
 
                 var weatherData = JsonConvert.DeserializeObject<WeatherStackApiResponse>(weatherDataString);
@@ -60,10 +67,17 @@ namespace Agile_Actors_Assignment.Services
                 if (weatherData == null)
                 {
                     _logger.LogWarning($"> Failed to deserialize weather data for location: {location}");
-                    return BasicDataResponse<WeatherStackApiResponse>.Fail("Failed to parse weather data.");
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail("Failed to parse weather data.");
                 }
                 _logger.LogInformation($"> Successfully retrieved weather data for location: {location}");
-                return BasicDataResponse<WeatherStackApiResponse>.Ok(weatherData);
+
+                wrapperDto = new ExternalApiWrapperDto
+                {
+                    Source = externalApiOptionsName,
+                    Data = weatherData
+                };
+
+                return BasicDataResponse<ExternalApiWrapperDto>.Ok(wrapperDto);
             }
             catch (HttpRequestException ex)
             {
@@ -73,7 +87,7 @@ namespace Agile_Actors_Assignment.Services
                     _apiStatistics.RecordRequest(externalApiOptionsName, sw.ElapsedMilliseconds, response.StatusCode);
                 }
                 _logger.LogError(ex, $"HTTP request failed for location: {location}");
-                return BasicDataResponse<WeatherStackApiResponse>.Fail(ex.Message);
+                return BasicDataResponse<ExternalApiWrapperDto>.Fail(ex.Message);
             }
             catch (Exception ex)
             {
@@ -83,7 +97,7 @@ namespace Agile_Actors_Assignment.Services
                     _apiStatistics.RecordRequest(externalApiOptionsName, sw.ElapsedMilliseconds, response.StatusCode);
                 }
                 _logger.LogError(ex, $"Unexpected error while fetching weather for location: {location}");
-                return BasicDataResponse<WeatherStackApiResponse>.Fail(ex.Message);
+                return BasicDataResponse<ExternalApiWrapperDto>.Fail(ex.Message);
             }
         }
     }

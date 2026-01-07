@@ -7,9 +7,9 @@ using System.Net.Http;
 
 namespace Agile_Actors_Assignment.Services
 {
-    public class NewsApiClient
+    public class NewsApiClient : IExternalApiClient
     {
-        private readonly string externalApiOptionsName = "News API";
+        public string externalApiOptionsName => "News API";
 
 
         private readonly HttpClient _client;
@@ -25,10 +25,15 @@ namespace Agile_Actors_Assignment.Services
             _logger = logger;
         }
 
-        public async Task<BasicDataResponse<NewsApiResponse>> GetNewsAsync(string query)
+        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string query, CancellationToken ct)
         {
             var sw = Stopwatch.StartNew();
             HttpResponseMessage response = null;
+
+            ExternalApiWrapperDto wrapperDto = new ExternalApiWrapperDto()
+            {
+                Source = externalApiOptionsName,
+            };
 
             try
             {
@@ -44,7 +49,7 @@ namespace Agile_Actors_Assignment.Services
                 {
                     _logger.LogWarning($"> News API returned status code: {response.StatusCode} for query: {query}");
 
-                    return BasicDataResponse<NewsApiResponse>.Fail(
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail(
                         $"News API returned error status: {response.StatusCode}",
                         response.StatusCode.ToString());
                 }
@@ -54,7 +59,7 @@ namespace Agile_Actors_Assignment.Services
                 if (string.IsNullOrWhiteSpace(newsDataString))
                 {
                     _logger.LogWarning($"> News API returned null response for query: {query}");
-                    return BasicDataResponse<NewsApiResponse>.Fail("News API returned empty response.", "EMPTY_RESPONSE");
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail("News API returned empty response.", "EMPTY_RESPONSE");
                 }
 
                 var newsData = System.Text.Json.JsonSerializer.Deserialize<NewsApiResponse>(newsDataString);
@@ -62,10 +67,17 @@ namespace Agile_Actors_Assignment.Services
                 if (newsData == null)
                 {
                     _logger.LogWarning($"> Failed to deserialize news data for query: {query}");
-                    return BasicDataResponse<NewsApiResponse>.Fail("Failed to parse news data.");
+                    return BasicDataResponse<ExternalApiWrapperDto>.Fail("Failed to parse news data.");
                 }
                 _logger.LogInformation($"> Successfully retrieved news data for query: {query}");
-                return BasicDataResponse<NewsApiResponse>.Ok(newsData);
+
+                wrapperDto = new ExternalApiWrapperDto
+                {
+                    Source = externalApiOptionsName,
+                    Data = newsData
+                };
+
+                return BasicDataResponse<ExternalApiWrapperDto>.Ok(wrapperDto);
             }
             catch (HttpRequestException ex)
             {
@@ -75,7 +87,7 @@ namespace Agile_Actors_Assignment.Services
                     _apiStatistics.RecordRequest(externalApiOptionsName, sw.ElapsedMilliseconds, response.StatusCode);
                 }
                 _logger.LogError(ex, $"HTTP request failed for query: {query}");
-                return BasicDataResponse<NewsApiResponse>.Fail(ex.Message);
+                return BasicDataResponse<ExternalApiWrapperDto>.Fail(ex.Message);
             }
             catch (Exception ex)
             {
@@ -85,7 +97,7 @@ namespace Agile_Actors_Assignment.Services
                     _apiStatistics.RecordRequest(externalApiOptionsName, sw.ElapsedMilliseconds, response.StatusCode);
                 }
                 _logger.LogError(ex, $"Unexpected error while fetching news for query: {query}");
-                return BasicDataResponse<NewsApiResponse>.Fail(ex.Message);
+                return BasicDataResponse<ExternalApiWrapperDto>.Fail(ex.Message);
             }
         }
     }

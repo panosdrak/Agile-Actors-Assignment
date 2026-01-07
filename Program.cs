@@ -46,7 +46,7 @@ builder.Services
 
 
 // Register typed HttpClient for Weather API
-builder.Services.AddHttpClient<WeatherStackApiClient>((sp, client) =>
+builder.Services.AddHttpClient<WeatherApiClient>((sp, client) =>
 {
     var options = sp.GetRequiredService<IOptionsMonitor<ExternalApiOptions>>().Get("Weather");
     client.BaseAddress = new Uri(options.BaseUrl);
@@ -77,6 +77,12 @@ builder.Services.AddHttpClient<WeatherStackApiClient>((sp, client) =>
     client.BaseAddress = new Uri(options.BaseUrl);
     client.Timeout = TimeSpan.FromSeconds(5);
 });
+
+
+// gia na boroume na kanoume inject ola ta clients automatically ws IExternalApiClient sto AggregationService
+builder.Services.AddScoped<IExternalApiClient>(sp => sp.GetRequiredService<WeatherApiClient>());
+builder.Services.AddScoped<IExternalApiClient>(sp => sp.GetRequiredService<NewsApiClient>());
+builder.Services.AddScoped<IExternalApiClient>(sp => sp.GetRequiredService<WeatherStackApiClient>());
 
 
 builder.Services.AddSingleton<IApiStatistics, ApiStatistics>();

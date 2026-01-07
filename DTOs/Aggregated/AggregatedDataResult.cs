@@ -4,9 +4,6 @@ namespace Agile_Actors_Assignment.DTOs.Aggregated
 {
     public class AggregatedDataResult
     {
-        public PlaceToCoordinatesResponse Place { get; set; } = default!;
-        public WeatherApiResponse Weather { get; set; } = default!;
-        public NewsApiResponse News { get; set; } = default!;
-        public WeatherStackApiResponse WeatherStack { get; set; } = default!;
+       public List<ExternalApiWrapperDto> ExternalData { get; set; } = new List<ExternalApiWrapperDto>();
     }
 }

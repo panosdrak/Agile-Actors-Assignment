@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Agile_Actors_Assignment.Services
 {
-    public class PlaceToCoordsClient    
+    public class PlaceToCoordsClient 
     {
         private readonly string externalApiOptionsName = "PlaceToCoordinates";
 
