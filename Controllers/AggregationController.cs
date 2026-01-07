@@ -28,17 +28,14 @@ namespace Agile_Actors_Assignment.Controllers
         }
 
         [HttpGet("aggregate", Name = "GetAggregatedData")]
-        public async Task<IActionResult> GetAggregatedData([FromQuery] string location, [FromQuery] string? newsQuery = null)
+        public async Task<IActionResult> GetAggregatedData([FromQuery] string location)
         {
-            var response = await _aggregationService.GetAggregatedDataAsync(location, newsQuery);
+            var response = await _aggregationService.GetAggregatedDataAsync(location);
 
             if (!response.Success)
             {
                 _logger.LogWarning(
-                    "Aggregation failed for location {Location}. ErrorCode: {ErrorCode}, Message: {Message}",
-                    location,
-                    response.ErrorCode,
-                    response.Message);
+                    $"Aggregation failed for location {location}. ErrorCode: {response.ErrorCode}, Message: {response.Message}");
 
                 return response.ErrorCode switch
                 {
@@ -57,6 +54,11 @@ namespace Agile_Actors_Assignment.Controllers
                 data = response.Data
             });
         }
+
+
+
+
+
 
         [HttpGet("stats", Name = "Statistics")]
         public IActionResult GetStatistics()

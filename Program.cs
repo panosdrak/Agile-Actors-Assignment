@@ -34,8 +34,19 @@ builder.Services
     .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey), "News API ApiKey is required")
     .ValidateOnStart();
 
+// Register named options for WeatherStack API
+builder.Services
+    .AddOptions<ExternalApiOptions>("WeatherStack API")
+    .Bind(builder.Configuration.GetSection("ExternalApis:WeatherStack API"))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.BaseUrl), "WeatherStack API BaseUrl is required")
+    .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey), "WeatherStack API ApiKey is required")
+    .ValidateOnStart();
+
+
+
+
 // Register typed HttpClient for Weather API
-builder.Services.AddHttpClient<WeatherApiClient>((sp, client) =>
+builder.Services.AddHttpClient<WeatherStackApiClient>((sp, client) =>
 {
     var options = sp.GetRequiredService<IOptionsMonitor<ExternalApiOptions>>().Get("Weather");
     client.BaseAddress = new Uri(options.BaseUrl);
@@ -58,6 +69,15 @@ builder.Services.AddHttpClient<NewsApiClient>((sp, client) =>
     client.Timeout = TimeSpan.FromSeconds(5);
     client.DefaultRequestHeaders.UserAgent.ParseAdd("MyDemoApp/1.0");   // thelei User Agent ypoxrewtika
 });
+
+// Register typed HttpClient for WeatherStack API
+builder.Services.AddHttpClient<WeatherStackApiClient>((sp, client) =>
+{
+    var options = sp.GetRequiredService<IOptionsMonitor<ExternalApiOptions>>().Get("WeatherStack API");
+    client.BaseAddress = new Uri(options.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
 
 builder.Services.AddSingleton<IApiStatistics, ApiStatistics>();
 builder.Services.AddScoped<AggregationService>();
