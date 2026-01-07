@@ -27,7 +27,7 @@ namespace Agile_Actors_Assignment.Services
             _placeToCoordsClient = placeToCoordsClient;
         }
 
-        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string locationName, CancellationToken ct)
+        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string locationName, string newsKeyword, CancellationToken ct)
         {
             ExternalApiWrapperDto wrapperDto = new ExternalApiWrapperDto()
             {

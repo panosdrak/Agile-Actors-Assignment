@@ -22,7 +22,7 @@ namespace Agile_Actors_Assignment.Services
         }   
         
 
-        public async Task<BasicDataResponse<AggregatedDataResult>> GetAggregatedDataAsync(string locationName, CancellationToken ct)
+        public async Task<BasicDataResponse<AggregatedDataResult>> GetAggregatedDataAsync(string locationName, string newsKeyword, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(locationName))
             {
@@ -33,7 +33,7 @@ namespace Agile_Actors_Assignment.Services
 
          
 
-            var tasks = _clients.Select(c => c.FetchAsync(locationName, ct));
+            var tasks = _clients.Select(c => c.FetchAsync(locationName, newsKeyword, ct));
             BasicDataResponse<ExternalApiWrapperDto>[] results = await Task.WhenAll(tasks);
             var combined = results.ToList();
 

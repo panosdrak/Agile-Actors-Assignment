@@ -28,11 +28,11 @@ namespace Agile_Actors_Assignment.Controllers
         }
 
         [HttpGet("aggregate", Name = "GetAggregatedData")]
-        public async Task<IActionResult> GetAggregatedData([FromQuery] string location)
+        public async Task<IActionResult> GetAggregatedData([FromQuery] string location, [FromQuery] string newsKeyword = null)
         {
 
             CancellationToken ct = HttpContext.RequestAborted;
-            var response = await _aggregationService.GetAggregatedDataAsync(location, ct);
+            var response = await _aggregationService.GetAggregatedDataAsync(location, newsKeyword, ct);
 
             if (!response.Success)
             {

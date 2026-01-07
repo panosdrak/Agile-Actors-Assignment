@@ -25,7 +25,7 @@ namespace Agile_Actors_Assignment.Services
             _logger = logger;
         }
 
-        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string location, CancellationToken ct)
+        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string location, string newsKeyword, CancellationToken ct)
         {
             var sw = Stopwatch.StartNew();
             HttpResponseMessage response = null;

@@ -7,6 +7,6 @@ namespace Agile_Actors_Assignment.Interfaces
     {
         string externalApiOptionsName { get; }
 
-        Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string query, CancellationToken ct);
+        Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string query, string newsKeyword, CancellationToken ct);
     }
 }

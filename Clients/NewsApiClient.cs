@@ -25,7 +25,7 @@ namespace Agile_Actors_Assignment.Services
             _logger = logger;
         }
 
-        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string query, CancellationToken ct)
+        public async Task<BasicDataResponse<ExternalApiWrapperDto>> FetchAsync(string query, string newsKeyword, CancellationToken ct)
         {
             var sw = Stopwatch.StartNew();
             HttpResponseMessage response = null;
@@ -64,12 +64,22 @@ namespace Agile_Actors_Assignment.Services
 
                 var newsData = System.Text.Json.JsonSerializer.Deserialize<NewsApiResponse>(newsDataString);
 
+            
+
                 if (newsData == null)
                 {
                     _logger.LogWarning($"> Failed to deserialize news data for query: {query}");
                     return BasicDataResponse<ExternalApiWrapperDto>.Fail("Failed to parse news data.");
                 }
                 _logger.LogInformation($"> Successfully retrieved news data for query: {query}");
+
+                if (newsKeyword != null)
+                {
+                    newsData.articles = newsData.articles
+                        .Where(article => article.title != null && article.title.Contains(newsKeyword, StringComparison.OrdinalIgnoreCase)
+                                       || article.description != null && article.description.Contains(newsKeyword, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
 
                 wrapperDto = new ExternalApiWrapperDto
                 {
